@@ -186,6 +186,28 @@ int pthread_mutex_lock_fake(pthread_mutex_t **uid) {
 	return pthread_mutex_lock(*uid);
 }
 
+int pthread_mutex_trylock_fake(pthread_mutex_t **uid) {
+	int ret = 0;
+	if (!*uid) {
+		ret = pthread_mutex_init_fake(uid, NULL);
+	} else if ((uintptr_t)*uid == 0x4000) {
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+		ret = pthread_mutex_init_fake(uid, &attr);
+		pthread_mutexattr_destroy(&attr);
+	} else if ((uintptr_t)*uid == 0x8000) {
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+		ret = pthread_mutex_init_fake(uid, &attr);
+		pthread_mutexattr_destroy(&attr);
+	}
+	if (ret < 0)
+		return ret;
+	return pthread_mutex_trylock(*uid);
+}
+
 int pthread_mutex_unlock_fake(pthread_mutex_t **uid) {
 	int ret = 0;
 	if (!*uid) {
@@ -930,6 +952,7 @@ static so_default_dynlib default_dynlib[] = {
 	{ "pthread_attr_setdetachstate", (uintptr_t)&ret0 },
 	{ "pthread_attr_setstacksize", (uintptr_t)&ret0 },
 	{ "pthread_attr_setschedpolicy", (uintptr_t)&ret0 },
+	{ "pthread_cond_destroy", (uintptr_t)&pthread_cond_destroy_fake},
 	{ "pthread_cond_signal", (uintptr_t)&pthread_cond_signal_fake},
 	{ "pthread_cond_broadcast", (uintptr_t)&pthread_cond_broadcast_fake},
 	{ "pthread_cond_wait", (uintptr_t)&pthread_cond_wait_fake},
@@ -941,6 +964,7 @@ static so_default_dynlib default_dynlib[] = {
 	{ "pthread_mutex_destroy", (uintptr_t)&pthread_mutex_destroy_fake },
 	{ "pthread_mutex_init", (uintptr_t)&pthread_mutex_init_fake },
 	{ "pthread_mutex_lock", (uintptr_t)&pthread_mutex_lock_fake },
+	{ "pthread_mutex_trylock", (uintptr_t)&pthread_mutex_trylock_fake },
 	{ "pthread_mutex_unlock", (uintptr_t)&pthread_mutex_unlock_fake },
 	{ "pthread_once", (uintptr_t)&pthread_once_fake },
 	{ "pthread_self", (uintptr_t)&pthread_self },

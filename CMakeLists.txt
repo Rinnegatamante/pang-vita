@@ -30,13 +30,13 @@ add_executable(pang
 target_link_libraries(pang
   openal
   -Wl,--whole-archive pthread -Wl,--no-whole-archive
-  m
-  z
-  stdc++
   vorbisfile
   vorbis
   ogg
   vitaGL
+  m
+  z
+  stdc++
   vitashark
   soloud
   mathneon
