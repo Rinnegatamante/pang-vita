@@ -1275,7 +1275,9 @@ void *real_main(void *argv) {
 	
 	//vglSetSemanticBindingMode(VGL_MODE_SHADER_PAIR);
 	vglSetupGarbageCollector(127, 0x20000);
-	vglInitExtended(0, SCREEN_W, SCREEN_H, MEMORY_VITAGL_THRESHOLD_MB * 1024 * 1024, SCE_GXM_MULTISAMPLE_NONE);
+	vglUseTripleBuffering(GL_FALSE);
+	vglSetParamBufferSize(4 * 1024 * 1024);
+	vglInitWithCustomThreshold(0, SCREEN_W, SCREEN_H, MEMORY_VITAGL_THRESHOLD_MB * 1024 * 1024, 0, 0, 0, SCE_GXM_MULTISAMPLE_NONE);
 
 	// Initing trophy system
 	SceIoStat st;

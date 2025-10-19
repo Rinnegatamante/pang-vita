@@ -9,7 +9,13 @@ By doing so, it's basically as if we emulate a minimalist Android environment in
 
 ## Changelog
 
-### v1.0
+### v.1.1
+
+- Updated to latest vitaGL commit.
+- Severely reduced memory usage: this should lead to less instances in which textures start missing in game.
+- Improved overall performance: framerate is, on average, 25% higher.
+
+### v.1.0
 
 - Initial release.
 
@@ -76,7 +82,7 @@ Additionally, you'll need these libraries to be compiled as well with `-mfloat-a
 - [vitaGL](https://github.com/Rinnegatamante/vitaGL)
 
   - ````bash
-    make SOFTFP_ABI=1 NO_DEBUG=1 HAVE_GLSL_SUPPORT=1 install
+    make SOFTFP_ABI=1 NO_DEBUG=1 HAVE_GLSL_SUPPORT=1 DEPTH_STENCIL_HACK=1 CIRCULAR_VERTEX_POOL=2 install
     ````
 
 After all these requirements are met, you can compile the loader with the following commands:
