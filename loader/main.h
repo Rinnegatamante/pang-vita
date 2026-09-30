@@ -8,6 +8,7 @@
 extern so_module twom_mod;
 
 int debugPrintf(char *text, ...);
+int file_exists(const char *path);
 
 int ret0();
 

@@ -337,7 +337,7 @@ void patch_game(void) {
 		kuKernelCpuUnrestrictedMemcpy(AndroidFile_read_start + 0x31 + i * 2, &nop, 2);
 	}
 	
-	trp_hook = hook_addr(so_symbol(&main_mod, "_ZN5Pasta22AndroidAchievementsMgr12unlockTrophyEi"), unlockTrophy);
+	trp_hook = hook_addr(so_symbol(&main_mod, "_ZN5Pasta22AndroidAchievementsMgr12unlockTrophyEi"), (uintptr_t)unlockTrophy);
 }
 
 extern void *__aeabi_atexit;
@@ -399,8 +399,11 @@ FILE *fopen_hook(char *fname, char *mode) {
 #endif
 	FILE *f;
 	if (fname[0] == '/') {
-		if (sceFiosFHOpenSync(NULL, &f, fname, NULL))
+		int32_t handle;
+		if (sceFiosFHOpenSync(NULL, &handle, fname, NULL))
 			f = NULL;
+		else
+			f = (FILE *)(uintptr_t)handle;
 	} else {
 		f = fopen(fname, mode);
 	}
@@ -410,34 +413,34 @@ FILE *fopen_hook(char *fname, char *mode) {
 }
 
 long ftell_hook(FILE *f) {
-	if (f > 0x81000000)
+	if ((uintptr_t)f > 0x81000000)
 		return ftell(f);
 
-	return sceFiosFHTell(f);
+	return sceFiosFHTell((int32_t)(uintptr_t)f);
 }
 
 int fseek_hook(FILE *f, int dist, int off) {
-	if (f > 0x81000000)
+	if ((uintptr_t)f > 0x81000000)
 		return fseek(f, dist, off);
 	
-	sceFiosFHSeek(f, dist, off);
+	sceFiosFHSeek((int32_t)(uintptr_t)f, dist, off);
 	return 0;
 }
 
 size_t fread_hook(void *p, size_t size, size_t num, FILE *f) {
-	if (f > 0x81000000)
+	if ((uintptr_t)f > 0x81000000)
 		return fread(p, size, num, f);
 
-	int64_t rbytes = sceFiosFHReadSync(NULL, f, p, size * num);
+	int64_t rbytes = sceFiosFHReadSync(NULL, (int32_t)(uintptr_t)f, p, size * num);
 	//printf("read %lld bytes from %x\n", rbytes, f);
 	return rbytes / size;
 }
 
 void fclose_hook(FILE *f) {
-	if (f > 0x81000000)
+	if ((uintptr_t)f > 0x81000000)
 		fclose(f);
 	else
-		sceFiosFHCloseSync(NULL, f);
+		sceFiosFHCloseSync(NULL, (int32_t)(uintptr_t)f);
 }
 
 int open_hook(const char *fname, int flags) {
