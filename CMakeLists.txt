@@ -10,6 +10,9 @@ endif()
 
 project(pang C CXX)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(openal REQUIRED IMPORTED_TARGET openal)
+pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
 set(VITA_APP_NAME "Pang Adventures")
 set(VITA_TITLEID  "PANG00001")
 set(VITA_VERSION  "01.00")
@@ -27,9 +30,13 @@ add_executable(pang
   loader/trophies.c
 )
 
+set_target_properties(pang PROPERTIES LINKER_LANGUAGE CXX)
+
 target_link_libraries(pang
+  -pthread
+  PkgConfig::openal
+  PkgConfig::vorbisfile
   openal
-  -Wl,--whole-archive pthread -Wl,--no-whole-archive
   vorbisfile
   vorbis
   ogg
@@ -79,3 +86,7 @@ add_custom_target(copy
   COMMAND cp eboot.bin D:/app/${VITA_TITLEID}/eboot.bin
   DEPENDS eboot.bin
 )
+
+set_property(SOURCE loader/so_util.c APPEND PROPERTY COMPILE_OPTIONS -Wno-error=return-mismatch -Wno-error=incompatible-pointer-types)
+
+set_property(SOURCE loader/main.c APPEND PROPERTY COMPILE_OPTIONS -std=gnu17)

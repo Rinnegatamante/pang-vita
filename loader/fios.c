@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include <psp2/kernel/clib.h>
 
 #include "main.h"
 #include "config.h"
